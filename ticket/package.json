@@ -1,0 +1,19 @@
+{
+  "dependencies": {
+    "@discordjs/builders": "^0.6.0",
+    "@discordjs/rest": "^0.1.0-canary.0",
+    "discord-api-types": "^0.24.0",
+    "discord.js": "^13.2.0",
+    "hastebin": "^0.2.1"
+  },
+  "name": "push-ticket",
+  "version": "1.0.0",
+  "description": "Atendimento via Push Ticket",
+  "main": "index.js",
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "leozfreitas#2785",
+  "license": "Apache License 2.0"
+}
