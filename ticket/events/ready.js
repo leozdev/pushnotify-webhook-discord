@@ -1,14 +1,14 @@
 module.exports = {
   name: 'ready',
   async execute(client) {
-    console.log('Ticket Online!')
-    console.log('Push Notify');
+    console.log('✅ Push Ticket Online');
     const oniChan = client.channels.cache.get(client.config.ticketChannel)
 
     function sendTicketMSG() {
       const embed = new client.discord.MessageEmbed()
-        .setColor('ff0000')
-        .setAuthor('Push Ticket', client.user.avatarURL())
+        .setColor('000000')
+        .setAuthor('Push Ticket')
+        .setThumbnail(client.user.avatarURL())
         .setTitle('Sistema de Ticket Automático')
         .setDescription('Para obter **SUPORTE** abra um ticket clicando o botão a baixo.')
         .setFooter('Lembre-se não abra um ticket sem necessidade')
@@ -18,7 +18,7 @@ module.exports = {
           .setCustomId('open-ticket')
           .setLabel('Abrir Ticket')
           .setEmoji('🎫')
-          .setStyle('PRIMARY'),
+          .setStyle('SECONDARY'),
         );
 
       oniChan.send({

@@ -1,22 +1,9 @@
-let hastebin = require('hastebin');
-
 module.exports = {
   name: 'interactionCreate',
   async execute(interaction, client) {
     if (!interaction.isButton()) return;
     if (interaction.customId == "open-ticket") {
 
-    const embed3 = new client.discord.MessageEmbed()
-    .setAuthor('Push Ticket', client.user.avatarURL())
-    .setTitle('📩 Um ticket foi aberto!')
-    .setThumbnail(client.user.avatarURL())
-    .setDescription(`<@&${client.config.roleSupport}>\n\n ◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤`)
-    .setColor('#2f3136')
-    .setTimestamp();
-
-    client.channels.cache.get(client.config.logsTicket).send({
-        embeds: [embed3]
-      });
 
       if (client.guilds.cache.get(interaction.guildId).channels.cache.find(c => c.topic == interaction.user.id)) {
         return interaction.reply({
@@ -24,6 +11,7 @@ module.exports = {
           ephemeral: true
         });
       };
+
 
       interaction.guild.channels.create(`🙋┃ticket-${interaction.user.username}`, {
         parent: client.config.parentOpened,
@@ -34,7 +22,7 @@ module.exports = {
           },
           {
             id: client.config.roleSupport,
-            allow: ['SEND_MESSAGES', 'VIEW_CHANNEL', 'READ_MESSAGE_HISTORY'],
+            allow: ['SEND_MESSAGES', 'VIEW_CHANNEL', 'READ_MESSAGE_HISTORY', 'MANAGE_MESSAGES'],
           },
           {
             id: interaction.guild.roles.everyone,
@@ -47,10 +35,12 @@ module.exports = {
           content: `O Ticket foi criado! <#${c.id}>`,
           ephemeral: true
         });
-      
+
+          
         const embed = new client.discord.MessageEmbed()
-          .setColor('ff9600')
-          .setAuthor('Push Ticket', client.user.avatarURL())
+          .setColor('000000')
+          .setAuthor('Push Ticket')
+          .setThumbnail(client.user.avatarURL())
           .setTitle('Selecione o motivo do suporte:')
           .setDescription('Após selecionar o motivo, aguarde um pouco para que nossa equipe venha te responder!')
 
@@ -58,27 +48,32 @@ module.exports = {
           .addComponents(
             new client.discord.MessageSelectMenu()
             .setCustomId('category')
-            .setPlaceholder('Selecione o motivo')
+            .setPlaceholder('Selecione o motivo:')
             .addOptions([
               {
-                label: 'Suporte',
-                value: 'Suporte',
-                emoji: { name: '🙋' }
+                label: '🙋 Suporte',
+                value: '🙋 Suporte'
+                
               },
               {
-                label: 'Sugestões',
-                value: 'Sugestões',
-                emoji: { name: '💡' }
+                label: '💡 Sugestões',
+                value: '💡 Sugestões'
+                
               },
               {
-                label: 'Dúvidas',
-                value: 'Dúvidas',
-                emoji: { name: '❓' }
+                label: '❓ Dúvidas',
+                value: '❓ Dúvidas'
+               
               },
               {
-                label: 'Assinaturas',
-                value: 'Assinaturas',
-                emoji: { name: '🥇' }
+                label: '💰  Planos PushNotify',
+                value: '💰  Planos PushNotify'
+                
+              },
+              {
+                label: '🐌 Bug\'s',
+                value: '🐌 Bug\'s'
+                
               },
             ]),
           );
@@ -99,7 +94,7 @@ module.exports = {
             if (msg.deletable) {
               msg.delete().then(async () => {
                 const embed = new client.discord.MessageEmbed()
-                  .setColor('ff9600')
+                  .setColor('000000')
                   .setTitle('Ticket Criado com Sucesso!  📌')
                   .setThumbnail(client.user.avatarURL())
                   .setDescription(`Todos os responsáveis pelo ticket já estão cientes da abertura, basta aguardar alguém já irá lhe atender...\n\n **Você escolheu a categoria:** \n\`\`\` ${i.values[0]}\`\`\` \n\n**Caso deseje cancelar ou sair, basta clicar no botão vermelho.**\n\n`)
@@ -113,6 +108,31 @@ module.exports = {
                     .setEmoji('899745362137477181')
                     .setStyle('DANGER'),
                   );
+                  const embed3 = new client.discord.MessageEmbed()
+                  .setAuthor('Push Ticket', client.user.avatarURL())
+                  .setTitle('📩 Um ticket foi aberto!')
+                  .setThumbnail(client.user.avatarURL())
+                  .setDescription(`\n\n**\- Ticket ID:** \`${c.id}\`\n **\- Autor:** <@!${c.topic}> \n **\- Categoria:** \n\`\`\` ${i.values[0]}\`\`\` `)
+                  .setColor('#2f3136')
+                  .setFooter('Horário:')
+                  .setTimestamp();
+                  const linkRow = new client.discord.MessageActionRow()
+                  .addComponents(
+                  new client.discord.MessageButton()
+                  .setURL(`https://discord.com/channels/1002003714405580850/${c.id}`)
+                  .setLabel('Ver Ticket')
+                  .setEmoji('👀')
+                  .setStyle('LINK'),
+                  );
+                  
+                  client.channels.cache.get(client.config.logsTicket).send({
+                      embeds: [embed3],
+                      components: [linkRow]
+                    });
+
+                  // Notificação de Ticket Opcional
+
+                  client.users.cache.get('707711307742314567').send({embeds: [embed3], components: [linkRow]});
 
                 const opened = await c.send({
                   content: `<@&${client.config.roleSupport}>`,
@@ -140,15 +160,21 @@ module.exports = {
                 parent: client.config.parentDuvidas
               });
             };
-            if (i.values[0] == '🥇 Assinaturas') {
+            if (i.values[0] == '💰  Planos Push Notify') {
               c.edit({
                 parent: client.config.parentAssinaturas
+              });
+            };
+            if (i.values[0] == '🐌 Bug\'s') {
+              c.edit({
+                  parent: client.config.parentBugs
               });
             };
           };
         });
       });
     };
+
 
     if (interaction.customId == "close-ticket") {
       const guild = client.guilds.cache.get(interaction.guildId);
@@ -158,16 +184,18 @@ module.exports = {
         .addComponents(
           new client.discord.MessageButton()
           .setCustomId('confirm-close')
-          .setLabel('Confirmar')
-          .setStyle('DANGER'),
+          .setLabel('Sim')
+          .setEmoji('✅')
+          .setStyle('SUCCESS'),
           new client.discord.MessageButton()
           .setCustomId('no')
-          .setLabel('Cancelar')
-          .setStyle('SECONDARY'),
+          .setLabel('Não')
+          .setEmoji('899745362137477181')
+          .setStyle('DANGER'),
         );
 
       const verif = await interaction.reply({
-        content: '> **Tem certeza de que deseja fechar o ticket?**',
+        content: '> **Finalizar o Ticket?**',
         components: [row]
       });
 
@@ -179,7 +207,7 @@ module.exports = {
       collector.on('collect', i => {
         if (i.customId == 'confirm-close') {
           interaction.editReply({
-            content: `> **O ticket foi fechado por** <@!${interaction.user.id}>`,
+            content: `Ticket sendo finalizado...`,
             components: []
           });
 
@@ -199,32 +227,10 @@ module.exports = {
                 },
               ],
             })
-            .then(async () => {
-              const embed = new client.discord.MessageEmbed()
-                .setColor('ff9600')
-                .setAuthor('Push Ticket', client.user.avatarURL())
-                .setDescription('```Deletar canal?```');
-
-              const row = new client.discord.MessageActionRow()
-                .addComponents(
-                  new client.discord.MessageButton()
-                  .setCustomId('delete-ticket')
-                  .setLabel('Sim')
-                  .setEmoji('✅')
-                  .setStyle('SUCCESS'),
-                );
-
-              chan.send({
-                embeds: [embed],
-                components: [row]
-              });
-            });
-
-          collector.stop();
         };
         if (i.customId == 'no') {
           interaction.editReply({
-            content: 'Finalizar ticket cancelado!',
+            content: 'Ticket não foi finalizado!',
             components: []
           });
           collector.stop();
@@ -234,59 +240,49 @@ module.exports = {
       collector.on('end', (i) => {
         if (i.size < 1) {
           interaction.editReply({
-            content: 'Finalizar ticket cancelado!',
+            content: 'Ticket não foi finalizado!',
             components: []
           });
         };
       });
     };
 
-    if (interaction.customId == "delete-ticket") {
+
+    if (interaction.customId == "confirm-close") {
       const guild = client.guilds.cache.get(interaction.guildId);
       const chan = guild.channels.cache.get(interaction.channelId);
+      const embed = new client.discord.MessageEmbed()
+      .setAuthor('Push Ticket', client.user.avatarURL())
+      .setThumbnail(client.user.avatarURL())
+      .setTitle('✅ Ticket Finalizado com Sucesso')
+      .setDescription(`**\-Ticket ID:** \`${chan.id}\` \n **\- Autor:** <@!${chan.topic}> \n **\- Finalizado por:** <@!${interaction.user.id}>`)
+      .setColor('2f3136')
+      .setFooter('Horário:')
+      .setTimestamp()
 
-      interaction.reply({
-        content: 'Finalizando ticket...'
+      chan.send({
+        embeds: [embed]
+      })
+
+    chan.messages.fetch().then(async (messages) => {
+      const embed = new client.discord.MessageEmbed()
+      .setAuthor('Push Ticket', client.user.avatarURL())
+      .setThumbnail(client.user.avatarURL())
+      .setTitle('✅ Ticket Finalizado com Sucesso')
+      .setDescription(`**\- Ticket ID:** \`${chan.id}\`\n **\- Autor:** <@!${chan.topic}>  \n **\- Finalizado por:** <@!${interaction.user.id}>`)
+      .setColor('2f3136')
+      .setFooter('Horário:')
+      .setTimestamp();
+
+
+      client.channels.cache.get(client.config.logsTicket).send({
+      embeds: [embed]
       });
-
-      chan.messages.fetch().then(async (messages) => {
-        let a = messages.filter(m => m.author.bot !== true).map(m =>
-          `${new Date(m.createdTimestamp).toLocaleString('de-DE')} - ${m.author.username}#${m.author.discriminator}: ${m.attachments.size > 0 ? m.attachments.first().proxyURL : m.content}`
-        ).reverse().join('\n');
-        if (a.length < 1) a = "Não estava escrito no ticket"
-        hastebin.createPaste(a, {
-            contentType: 'text/plain',
-            server: 'https://www.toptal.com/developers/hastebin/documents'
-          }, {})
-          .then(function (urlToPaste) {
-            const embed = new client.discord.MessageEmbed()
-              .setAuthor('Push Ticket', client.user.avatarURL())
-              .setThumbnail(client.user.avatarURL())
-              .setTitle('✅ Ticket Finalizado com Sucesso')
-              .setDescription(`**Ticket ID:** \`${chan.id}\`. \n **Criado por** <@!${chan.topic}>. \n **Finalizado por** <@!${interaction.user.id}>\n\nTranscript : [**Transcript Log**](${urlToPaste})`)
-              .setColor('2f3136')
-              .setTimestamp();
-
-            const embed2 = new client.discord.MessageEmbed()
-              .setAuthor('Push Ticket', client.user.avatarURL())
-              .setThumbnail(client.user.avatarURL())
-              .setTitle('✅ Ticket Finalizado com Sucesso')
-              .setDescription(`**Ticket ID:** \`${chan.id}\`. \n **Criado por** <@!${chan.topic}>. \n **Finalizado por** <@!${interaction.user.id}>\n\nTranscript : [**Transcript Log**](${urlToPaste})`)
-              .setColor('2f3136')
-              .setTimestamp();
-
-            client.channels.cache.get(client.config.logsTicket).send({
-              embeds: [embed]
-            });
-            client.users.cache.get(chan.topic).send({
-              embeds: [embed2]
-            }).catch(() => {console.log('I cant send it DM')});
-
-            setTimeout(() => {
-              chan.delete();
-            }, 3000);
-          });
+      setTimeout(() => {
+      chan.delete();
+      }, 3000);
       });
     };
   },
 };
+
