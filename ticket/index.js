@@ -31,7 +31,7 @@ const rest = new REST({
 rest.put(Routes.applicationCommands(clientId), {
     body: slashcommands
   })
-  .then(() => console.log('Comandos de aplicativos registrados com sucesso.'))
+  .then(() => console.log('✅ Comandos de aplicativos registrados com sucesso.'))
   .catch(console.error);
 
 const client = new Client({
@@ -41,6 +41,51 @@ const client = new Client({
 const Discord = require('discord.js');
 client.discord = Discord;
 client.config = config;
+
+client.on('message', message => {
+  if (message.content === '!finalizar2') {  
+    if(!message.member.permissions.has('ADMINISTRATOR')) return message.reply({ content: "Você não tem permissão!"})
+     message.channel.delete()
+
+     const finalizar2 = new client.discord.MessageEmbed()
+      .setAuthor('Push Ticket', client.user.avatarURL())
+      .setThumbnail(client.user.avatarURL())
+      .setTitle('⚠️ Ticket foi fechado a força!')
+      .setDescription('\`\`\`Sem informações do Ticket Fechado\`\`\`')
+      .setColor('2f3136')
+      .setFooter('Horário:')
+      .setTimestamp();
+
+
+      client.channels.cache.get(client.config.logsTicket).send({
+      embeds: [finalizar2]
+      });
+  }
+});
+// TESTE MEMBROS DO CARGO TICKET
+client.on("message", message => {
+
+  if(message.content == `!ticketmembros`) {
+      const MessageEmbed2 = new client.discord.MessageEmbed()
+          .setTitle(`ID\'s com cargo de 🎫┃Ticket`)
+          .setDescription(message.guild.roles.cache.get('1002781224693158018').members.map(m=>m.user.id).join('\n'));
+
+          client.channels.cache.get(client.config.logsTicket).send({
+            embeds: [MessageEmbed2]
+            });                    
+  }
+});
+// Verificar Bot se está respondendo
+client.on('message', message => {
+  if (message.content === '!ticket') {   
+    if(!message.member.permissions.has('ADMINISTRATOR')) return message.reply({ content: "Você não tem permissão!"})
+     message.reply({
+      content: '<:moderador:1002317654213799958> Push Ticket v2.0.0 está funcionando perfeitamente!',
+      ephemeral: true,
+    });
+  }
+});
+
 
 client.commands = new Collection();
 const commandFiles = fs.readdirSync('./commands').filter(file => file.endsWith('.js'));
@@ -69,7 +114,7 @@ client.on('interactionCreate', async interaction => {
   } catch (error) {
     console.error(error);
     return interaction.reply({
-      content: 'Ocorreu um erro ao executar este comando!',
+      content: '❌ Ocorreu um erro ao executar este comando!',
       ephemeral: true
     });
   };
